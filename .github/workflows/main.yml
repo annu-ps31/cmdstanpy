@@ -116,7 +116,7 @@ jobs:
             deactivate'
     - name: Run flake8 and pylint
       run: |
-	  docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+            docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
             ${{ env.img }} \
             bash -exc '\
             source .env/bin/activate && \
@@ -152,5 +152,4 @@ jobs:
             python -m pip install -r ../requirements-optional.txt && \
             python ../test/example_script.py && \
             python ../scripts/clean_examples.py && \
-            deactivate'	
-		  
+            deactivate'		  
