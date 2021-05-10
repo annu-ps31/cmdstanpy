@@ -34,14 +34,12 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-test.txt
           pip install codecov
-
       - name: Run flake8 and pylint
         run: |
           mkdir run_tests
           cd run_tests
           flake8 --extend-ignore=E127,E201,E202,E203,E231,E252,E266,E402,E999,F841,W503,W605 --max-line-length=80 ../cmdstanpy ../test
           pylint -v --rcfile=../.pylintrc ../cmdstanpy ../test
-
       - name: Build wheel
         run: python setup.py bdist_wheel
 
@@ -54,7 +52,6 @@ jobs:
         run: |
           $whl = Get-ChildItem -Path dist -Filter *.whl | Select-Object -First 1
           pip install "$whl"
-
       - name: Show libraries
         run: python -m pip freeze
 
@@ -63,26 +60,102 @@ jobs:
         run: |
           python -m cmdstanpy.install_cmdstan
           python scripts/clean_examples.py
-
       - name: Install CmdStan (Windows)
         if: matrix.os == 'windows-latest'
         run: |
           python -m cmdstanpy.install_cmdstan --compiler
           python scripts/clean_examples.py
-
       - name: Run tests
         run: |
           cd run_tests
           pytest -v ../test --cov=../cmdstanpy
-
       - name: Run model with requirements-optional.txt
         run: |
           cd run_tests
           python -m pip install -r ../requirements-optional.txt
           python ../test/example_script.py
           python ../scripts/clean_examples.py
-
       - name: Submit codecov
         run: |
           cd run_tests
           codecov
+		  
+  name: tests-aarch64:
+	name: "Test ${{ matrix.pyver }} aarch64"
+    strategy:
+      matrix:
+        pyver: [cp36-cp36m, cp37-cp37m, cp38-cp38, cp39-cp39]
+        arch: [aarch64]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    env:
+      py: /opt/python/${{ matrix.pyver }}/bin/python
+      img: quay.io/pypa/manylinux2014_${{ matrix.arch }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Checkout submodules
+      run: |
+        git submodule init
+        git submodule update
+    - name: Set up QEMU
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+    - name: Install tools
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+          ${{ env.img }} ${{ env.py }} -m pip install -U  pip build
+    - name: Install dependencies
+      run: |
+            docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+            ${{ env.img }} \
+            bash -exc '${{ env.py }} -m pip install virtualenv && ${{ env.py }} -m venv .env && \
+            source .env/bin/activate && \
+            python -m pip install --upgrade pip wheel && \
+            pip install -r requirements.txt && \
+			pip install -r requirements-test.txt && \
+			pip install codecov && \
+            deactivate'
+	- name: Run flake8 and pylint
+	  run: |
+			docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+            ${{ env.img }} \
+            bash -exc '\
+            source .env/bin/activate && \
+            mkdir run_tests && \
+            cd run_tests && \
+			flake8 --extend-ignore=E127,E201,E202,E203,E231,E252,E266,E402,E999,F841,W503,W605 --max-line-length=80 ../cmdstanpy ../test && \
+			pylint -v --rcfile=../.pylintrc ../cmdstanpy ../test && \
+            deactivate'
+			
+	- name: Build wheel-aarch64		
+	  run: |
+        docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+          ${{ env.img }} ${{ env.py }} -m build \
+		  bash -exc '\
+		  source .env/bin/activate && \
+		  python setup.py bdist_wheel && \
+		  deactivate'
+		  
+	- name: Run tests
+      run: |
+          docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+            ${{ env.img }} \
+            bash -exc '\
+            source .env/bin/activate && \
+            cd run_tests && \
+            pytest -v ../test --cov=../cmdstanpy && \
+            deactivate'
+			
+	- name: Run model with requirements-optional.txt	
+      run: |
+          docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+            ${{ env.img }} \
+            bash -exc '\
+            source .env/bin/activate && \
+            cd run_tests && \
+            python -m pip install -r ../requirements-optional.txt && \
+			python ../test/example_script.py && \
+			python ../scripts/clean_examples.py && \
+            deactivate'	
+		  
