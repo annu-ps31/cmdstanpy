@@ -126,22 +126,19 @@ jobs:
             flake8 --extend-ignore=E127,E201,E202,E203,E231,E252,E266,E402,E999,F841,W503,W605 --max-line-length=80 ../cmdstanpy ../test && \
             pylint -v --rcfile=../.pylintrc ../cmdstanpy ../test && \
             deactivate'
-    - name: Build wheel-aarch64	
+    - name: Build wheel-aarch64	& Run tests
       run: |
          docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
-            ${{ env.img }} ${{ env.py }} -m build
-            bash -exc '\
-            source .env/bin/activate && \
-            python setup.py bdist_wheel && \
-            deactivate'
-    - name: Run tests
-      run: |
-          docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
             ${{ env.img }} \
             bash -exc '\
             source .env/bin/activate && \
+            python setup.py bdist_wheel && \
+            pip install dist/*.whl && \
+            python -m pip freeze && \
+            python -m cmdstanpy.install_cmdstan && \
+            python scripts/clean_examples.py && \
             cd run_tests && \
-            pytest -v ../test --cov=../cmdstanpy && \
+            pytest -v ../test --cov=../cmdstanpy
             deactivate'
     - name: Run model with requirements-optional.txt	
       run: |
