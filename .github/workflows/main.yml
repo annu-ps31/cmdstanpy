@@ -113,6 +113,7 @@ jobs:
             python -m pip install --upgrade pip wheel && \
             pip install -r requirements.txt && \
             pip install -r requirements-test.txt && \
+            pip install codecov && \
             deactivate'
     - name: Run flake8 and pylint
       run: |
