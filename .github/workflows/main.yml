@@ -79,9 +79,8 @@ jobs:
         run: |
           cd run_tests
           codecov
-		  
-  name: tests-aarch64:
-	name: "Test ${{ matrix.pyver }} aarch64"
+  tests-aarch64:
+    name: "Test ${{ matrix.pyver }} aarch64"
     strategy:
       matrix:
         pyver: [cp36-cp36m, cp37-cp37m, cp38-cp38, cp39-cp39]
