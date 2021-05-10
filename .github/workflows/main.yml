@@ -106,35 +106,35 @@ jobs:
           ${{ env.img }} ${{ env.py }} -m pip install -U  pip build
     - name: Install dependencies
       run: |
-            docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+        docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
             ${{ env.img }} \
             bash -exc '${{ env.py }} -m pip install virtualenv && ${{ env.py }} -m venv .env && \
             source .env/bin/activate && \
             python -m pip install --upgrade pip wheel && \
             pip install -r requirements.txt && \
-			pip install -r requirements-test.txt && \
-			pip install codecov && \
-            deactivate'
-	- name: Run flake8 and pylint
-	  run: |
-			docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+	    pip install -r requirements-test.txt && \
+	    deactivate'
+	    
+    - name: Run flake8 and pylint
+      run: |
+	    docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
             ${{ env.img }} \
             bash -exc '\
             source .env/bin/activate && \
             mkdir run_tests && \
             cd run_tests && \
-			flake8 --extend-ignore=E127,E201,E202,E203,E231,E252,E266,E402,E999,F841,W503,W605 --max-line-length=80 ../cmdstanpy ../test && \
-			pylint -v --rcfile=../.pylintrc ../cmdstanpy ../test && \
+	    flake8 --extend-ignore=E127,E201,E202,E203,E231,E252,E266,E402,E999,F841,W503,W605 --max-line-length=80 ../cmdstanpy ../test && \
+	    pylint -v --rcfile=../.pylintrc ../cmdstanpy ../test && \
             deactivate'
 			
-	- name: Build wheel-aarch64		
-	  run: |
-        docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
-          ${{ env.img }} ${{ env.py }} -m build \
-		  bash -exc '\
-		  source .env/bin/activate && \
-		  python setup.py bdist_wheel && \
-		  deactivate'
+    - name: Build wheel-aarch64		
+      run: |
+            docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+            ${{ env.img }} ${{ env.py }} -m build \
+	    bash -exc '\
+	    source .env/bin/activate && \
+	    python setup.py bdist_wheel && \
+	    deactivate'
 		  
 	- name: Run tests
       run: |
@@ -146,7 +146,7 @@ jobs:
             pytest -v ../test --cov=../cmdstanpy && \
             deactivate'
 			
-	- name: Run model with requirements-optional.txt	
+- name: Run model with requirements-optional.txt	
       run: |
           docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
             ${{ env.img }} \
@@ -154,7 +154,7 @@ jobs:
             source .env/bin/activate && \
             cd run_tests && \
             python -m pip install -r ../requirements-optional.txt && \
-			python ../test/example_script.py && \
-			python ../scripts/clean_examples.py && \
+	    python ../test/example_script.py && \
+	    python ../scripts/clean_examples.py && \
             deactivate'	
 		  
