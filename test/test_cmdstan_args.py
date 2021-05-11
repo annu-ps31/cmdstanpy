@@ -569,12 +569,13 @@ class CmdStanArgsTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 read_only = os.path.join(_TMPDIR, 'read_only')
                 os.mkdir(read_only, mode=0o444)
+                print(_TMPDIR)
+                print(read_only)
                 CmdStanArgs(
                     model_name='bernoulli',
                     model_exe='bernoulli.exe',
                     chain_ids=[1, 2, 3, 4],
                     output_dir=read_only,
-                    print(_TMPDIR)
                     method_args=sampler_args,
                 )
 
