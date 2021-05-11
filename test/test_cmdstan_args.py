@@ -575,7 +575,6 @@ class CmdStanArgsTest(unittest.TestCase):
                     chain_ids=[1, 2, 3, 4],
                     output_dir=read_only,
                     print(_TMPDIR)
-                    print(read_only)
                     method_args=sampler_args,
                 )
 
