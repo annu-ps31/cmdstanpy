@@ -47,11 +47,6 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: pip install dist/*.whl
 
-      - name: Install wheel (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          $whl = Get-ChildItem -Path dist -Filter *.whl | Select-Object -First 1
-          pip install "$whl"
       - name: Show libraries
         run: python -m pip freeze
 
@@ -60,11 +55,7 @@ jobs:
         run: |
           python -m cmdstanpy.install_cmdstan
           python scripts/clean_examples.py
-      - name: Install CmdStan (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          python -m cmdstanpy.install_cmdstan --compiler
-          python scripts/clean_examples.py
+      
       - name: Run tests
         run: |
           cd run_tests
