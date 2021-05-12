@@ -1,0 +1,23 @@
+dist: xenial
+language: python
+python:
+        - "3.6"
+
+install:
+  - pip install --upgrade pip wheel
+  - pip install -r requirements.txt
+  - pip install -r requirements-test.txt
+  - pip install codecov
+script:
+  - mkdir run_tests
+  - cd run_tests
+  - flake8 --extend-ignore=E127,E201,E202,E203,E231,E252,E266,E402,E999,F841,W503,W605 --max-line-length=80 ../cmdstanpy ../test
+  - pylint -v --rcfile=../.pylintrc ../cmdstanpy ../test
+Build wheel & Run_test:
+  - python setup.py bdist_wheel
+  - pip install dist/*.whl
+  - python -m pip freeze
+  - python -m cmdstanpy.install_cmdstan
+  - python scripts/clean_examples.py
+  - cd run_tests
+  - pytest -v ../test --cov=../cmdstanpy
