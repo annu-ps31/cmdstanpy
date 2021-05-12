@@ -20,7 +20,8 @@ script:
   - python setup.py bdist_wheel
   - pip install dist/*.whl
   - python -m pip freeze
-  #- python -m cmdstanpy.install_cmdstan
+  - python -m cmdstanpy.install_cmdstan
+  - uname -m
   - python scripts/clean_examples.py
   - cd run_tests
   - pytest -v ../test --cov=../cmdstanpy
