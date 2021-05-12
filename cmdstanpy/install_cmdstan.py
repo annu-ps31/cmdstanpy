@@ -175,7 +175,7 @@ def is_version_available(version: str):
     is_available = True
     url = (
         'https://github.com/stan-dev/cmdstan/releases/download/'
-        'v{0}/cmdstan-{0}.tar.gz'.format(version)
+        'v{0}/cmdstan-{0}-linux-arm64.tar.gz'.format(version)
     )
     for i in range(6):
         try:
