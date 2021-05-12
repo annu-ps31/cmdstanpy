@@ -268,7 +268,7 @@ def retrieve_version(version: str, progress=True):
     print('Downloading CmdStan version {}'.format(version))
     url = (
         'https://github.com/stan-dev/cmdstan/releases/download/'
-        'v{0}/cmdstan-{0}.tar.gz'.format(version)
+        'v{0}/cmdstan-{0}-linux-arm64.tar.gz'.format(version)
     )
     for i in range(6):  # always retry to allow for transient URLErrors
         try:
